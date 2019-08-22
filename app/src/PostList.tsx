@@ -70,7 +70,7 @@ class PostLine extends Component<{}, PList, any> {
             this.setState({
                 posts: [
                     { id: 1, title: 'Let\'s talk about React', author: 'A103', date: '2017/09/01 10:00', like: 0 },
-                    { id: 2, title: 'Which front-end framework do you enjoy the most?', author: 'A104', date: '2017/09/01 12: 00', like: 0 },
+                    { id: 2, title: 'Which front-end framework do you enjoy the most?', author: 'A104', date: '2017/09/01 12:00', like: 0 },
                     { id: 3, title: 'Age of Web App has befallen', author: 'A105', date: '2017/09/01 14:00', like: 0 }
                 ]
             });
