@@ -62,12 +62,56 @@ export class Canvas {
     private autoFillStyleSave: boolean = true;
     private fillStyleMem: Array<string | CanvasGradient | CanvasPattern> = [];
 
+    public constructor(width: number, height: number, id?: string) {
+        this.attr = {
+            Controller: this,
+            width: width,
+            height: height,
+            id: id
+        };
+    }
+
     public bind(element: VfCanvas): boolean {
         if (element) {
             this.$ = element;
             return true;
         }
         return false;
+    }
+
+    public clearRect(x: number, y: number, width: number, height: number): boolean {
+        if (!this.$) {
+            return false;
+        }
+        this.$._().clearRect(x, y, width, height);
+        return true;
+    }
+
+    public closePolyline(...cor: Array<number>): boolean {
+        if (!this.$) {
+            return false;
+        }
+        this.$._().beginPath();
+        this.$._().moveTo(cor[0], cor[1]);
+        for (let i: number = 2; i < cor.length; i += 2) {
+            this.$._().lineTo(cor[i], cor[i + 1]);
+        }
+        this.$._().closePath();
+        this.$._().stroke();
+        return true;
+    }
+
+    public fillInside(...cor: Array<number>): boolean {
+        if (!this.$) {
+            return false;
+        }
+        this.$._().beginPath();
+        this.$._().moveTo(cor[0], cor[1]);
+        for (let i: number = 2; i < cor.length; i += 2) {
+            this.$._().lineTo(cor[i], cor[i + 1]);
+        }
+        this.$._().fill();
+        return true;
     }
 
     public fillRect(x: number, y: number, width: number, height: number): boolean {
@@ -92,38 +136,29 @@ export class Canvas {
         if (!this.$) {
             return false;
         }
-        idx = idx < 0 ? this.fillStyleMem.length - idx : idx;
+        idx = idx < 0 ? this.fillStyleMem.length - 1 - idx : idx;
         this.$._().fillStyle = this.fillStyleMem[idx % this.fillStyleMem.length];
         return true;
     }
 
-    public saveFillStyle(flag: boolean): void {
-        this.autoFillStyleSave = flag;
-    }
-
-    public strokeRect(x: number, y: number, width: number, height: number): boolean {
+    public openPolyline(...cor: Array<number>): boolean {
         if (!this.$) {
             return false;
         }
-        this.$._().strokeRect(x, y, width, height);
-        return true;
-    }
-
-    public clearRect(x: number, y: number, width: number, height: number): boolean {
-        if (!this.$) {
-            return false;
+        this.$._().beginPath();
+        this.$._().moveTo(cor[0], cor[1]);
+        for (let i: number = 2; i < cor.length; i += 2) {
+            this.$._().lineTo(cor[i], cor[i + 1]);
         }
-        this.$._().clearRect(x, y, width, height);
+        this.$._().stroke();
         return true;
     }
 
-    public constructor(width: number, height: number, id?: string) {
-        this.attr = {
-            Controller: this,
-            width: width,
-            height: height,
-            id: id
-        };
+    public path(): Path | null {
+        if (!this.$) {
+            return null;
+        }
+        return new Path(this.$._());
     }
 
     public renderThis(container: Element | null): boolean {
@@ -137,5 +172,56 @@ export class Canvas {
             return true;
         }
         return false;
+    }
+
+    public saveFillStyle(flag: boolean): void {
+        this.autoFillStyleSave = flag;
+    }
+
+    public strokeRect(x: number, y: number, width: number, height: number): boolean {
+        if (!this.$) {
+            return false;
+        }
+        this.$._().strokeRect(x, y, width, height);
+        return true;
+    }
+}
+
+class Path {
+    private ctx: CanvasRenderingContext2D | null = null;
+
+    public constructor(ctx: CanvasRenderingContext2D) {
+        this.ctx = ctx;
+        this.ctx.beginPath();
+    }
+
+    public arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): Path {
+        this.ctx!.arcTo(x1, y1, x2, y2, radius);
+        return this;
+    }
+
+    public bezierCurveTo(...cor: Array<number>): Path {
+        if (cor.length === 4) {
+            this.ctx!.quadraticCurveTo(cor[0], cor[1], cor[2], cor[3]);
+        }
+        else if (cor.length === 6) {
+            this.ctx!.bezierCurveTo(cor[0], cor[1], cor[2], cor[3], cor[4], cor[5]);
+        }
+        return this;
+    }
+
+    public endPath(): boolean {
+        this.ctx!.stroke();
+        return true;
+    }
+
+    public lineTo(x: number, y: number): Path {
+        this.ctx!.lineTo(x, y);
+        return this;
+    }
+
+    public moveTo(x: number, y: number): Path {
+        this.ctx!.moveTo(x, y);
+        return this;
     }
 }

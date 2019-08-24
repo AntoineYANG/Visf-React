@@ -117,7 +117,6 @@ class PostItem extends Component<Readonly<PItemProps>, PItemState, any> {
   // To update
   public static getDerivedStateFromProps(nextProps: PItemProps, prevState: PItemProps): PItem | null {
     const { post } = nextProps;
-    console.log(post !== prevState.post ? post : null);
     return post !== prevState.post ? post : null;
   }
 }
